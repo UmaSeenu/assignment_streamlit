@@ -120,7 +120,7 @@ with st.form("test_case_form"):
     left_column, right_column = st.columns(2)
     with left_column:
         test_type = st.selectbox(
-            "Test type", ["Functional", "Positive", "Negative", "Boundary", "All"]
+            "Test type", ["Functional", "Positive", "Negative", "Boundary", "All","Performance"]
         )
     with right_column:
         count = st.number_input(
