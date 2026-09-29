@@ -4,6 +4,7 @@ import streamlit as st
 from dotenv import load_dotenv
 from langchain.agents import create_agent
 from langchain.tools import tool
+from streamlit.errors import StreamlitSecretNotFoundError
 
 load_dotenv()
 
@@ -95,6 +96,17 @@ First analyze the requirement and then generate the requested test cases.
     return str(content)
 
 
+def configure_api_key() -> bool:
+    api_key = os.getenv("OPENAI_API_KEY")
+    if not api_key:
+        try:
+            api_key = st.secrets["OPENAI_API_KEY"]
+        except (KeyError, StreamlitSecretNotFoundError):
+            return False
+        os.environ["OPENAI_API_KEY"] = api_key
+    return True
+
+
 st.set_page_config(page_title="QA Test Case Generator", page_icon="✅", layout="wide")
 st.title("QA Test Case Generator")
 st.caption("Turn a software requirement into focused, structured test cases.")
@@ -119,8 +131,8 @@ with st.form("test_case_form"):
 if submitted:
     if not requirement.strip():
         st.error("Enter a software requirement before generating test cases.")
-    elif not os.getenv("OPENAI_API_KEY"):
-        st.error("OPENAI_API_KEY is missing. Add it to a .env file and restart Streamlit.")
+    elif not configure_api_key():
+        st.error("OPENAI_API_KEY is missing. Add it in Streamlit Cloud app settings under Secrets.")
     else:
         with st.spinner("Analyzing the requirement and generating test cases..."):
             try:
